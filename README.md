@@ -33,7 +33,7 @@ Comparison of Monolithic and Microkernel Operating Systems
 
 #### Alternate How
 
-- This scenario will be user to user application.
+- This scenario will be user application to user application.
 - This will make it so that both OSes will use IPC between applications.
 - Mono will directly IPC between the applications.
 - Micro will: application -> kernel -> application.

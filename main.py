@@ -9,13 +9,15 @@ This file contains:
 """
 
 
-# main implementation
 def main():
-    # boot the Monolithic and Microkernel OSes
-    print()
+
+    # load Microkernel and its services
+    _Microkernel, _File_System, _User_Application = Start_Microkernel()
+
 
 
     # IPC comparisons
+    
 
 
 if __name__ == "__main__":
