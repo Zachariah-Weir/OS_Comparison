@@ -1,5 +1,6 @@
 import time
 
+
 """
 This file contains the implementation of the Microkernel class and its functions.
 """
@@ -28,7 +29,12 @@ class Microkernel:
 
     # IPC service
     def IPC( self, sender, receiver, message ):
+        time.sleep(.001)    # set IPC time to 1ms
         print( f'IPC: {sender} -> {receiver}: "{message}"' )
+
+    def SysCall( self, sender, receiver, service ):
+        time.sleep( .0005 ) # set SysCall time to .5ms
+        print( f'SysCall: {sender} -> {receiver}: {service}' )
 
     # Start OS
     def start_Micro( self ):
@@ -37,7 +43,7 @@ class Microkernel:
         print( f'   Loading Kernel Services...')
         for service in self.kernel_services:
             service.load_service()
-            
+
         print( f'   Loading User Services...' )
         for service in self.user_services:
             service.load_service()
@@ -75,6 +81,10 @@ class File_System( Kernel_Service ):
     # read file
     def read_file( self ):
         self.kernel.IPC( self.service_name, "Kernel", "Reading File..." )
+
+    # write file
+    def write_file( self ):
+        self.kernel.IPC( self.service_name, "Kernel", "Writing File..." )
 
 
 #
