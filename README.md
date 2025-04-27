@@ -2,14 +2,12 @@
 
 Comparison of Monolithic and Microkernel Operating Systems
 
-
 ## File Structure
 
 - **main.py** contains the implementation of our OSes and comparisons.
 - **comparisons.py** contains the comparison functions that will be used in the main.
 - **MicroKernel_Implementation.py** contains the implementation of the MicroKernel class and its functions.
 - **Monolithic_Implementation.py** contains the implementation of the Monolithic class and its functions.
-
 
 ## Comparisons Impementations
 
@@ -27,7 +25,7 @@ Comparison of Monolithic and Microkernel Operating Systems
 #### How
 
 - Start the user application and make a request to access a file.
-- Monolithic will directly communicate with the file system.
+- Monolithic will directly communicate with the file system (doesn't require IPC).
 - Microkernel messages will look like: application -> kernel -> filesystem -> kernel -> application.
 - Measure each IPC time and return the sum for each OS (add sleep timer for IPC).
 
@@ -47,13 +45,13 @@ Comparison of Monolithic and Microkernel Operating Systems
 - IPC( A, B )			# message from A to B
 - user_application_2()	# if alternate how is used
 
-
 ### 2) System Call Performance
 
 #### What to Measure
 
 - The time it takes for an app to complete an operation that needs the kernel (via system call).
 - How much overhead is added for system calls in microKernels.
+- System Call overhead will consist of additional IPC required for Microkernel. In Monolithic, no IPC, just internal function calls.
 
 #### Takeaway
 
@@ -61,9 +59,9 @@ Comparison of Monolithic and Microkernel Operating Systems
 
 #### How
 
-- Same scenario as IPC, but include time of functions used in addition to IPC (add sleep timer for functions).
-- Return the total times for IPC and functions.
-- For Mono, total time will just be
+- Same scenario as IPC, but include write file as well. This will simulate an additional system call to emphasize overhead created for two system calls rather than one.
+- Return the total times for system calls and IPC.
+- For Mono, total time will just be the system calls and function calls. Make sure function call times are less than IPC times.
 
 #### Services Needed
 
@@ -72,7 +70,6 @@ Comparison of Monolithic and Microkernel Operating Systems
 - filesystem()		# fake filesystem
   - read_file()
 - IPC( A, B )		# only for MicroKernel
-
 
 ### 3) Code Complexity and Size
 
@@ -92,7 +89,6 @@ Comparison of Monolithic and Microkernel Operating Systems
 #### Services Needed
 
 - No additional services needed.
-
 
 ### 4) Fault Isolation
 
