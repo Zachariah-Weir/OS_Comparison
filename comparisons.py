@@ -43,7 +43,12 @@ def Start_Microkernel():
 #   Start Monolithic
 #
 def Start_Monolithic():
-    pass
+
+    _Monolithic = Monolithic() # create Monolithic object
+    # no necessity to load services individually
+
+    return _Monolithic
+
 
 
 #
@@ -61,7 +66,7 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
 
     
 def Mono_IPC_Comparison():
-    pass
+    print( f'Monolithic Simulation:\n- User application requests to read file.\n- Only IPC time being measured.\n' )
 
 
 #
@@ -87,8 +92,12 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application):
     Microkernel.IPC( "Kernel", User_Application.service_name, "File Write completed...")
 
 
-def Mono_SysCall_Comparison():
-    pass
+def Mono_SysCall_Comparison( Kernel):
+    print( f'Monolithic Simulation:\n- User application requests to read and write file.\n- SysCall times being measured.\n' )
+    User_app = Kernel.create_application("User_App1")
+    User_app.system_call("write", "text.txt", "sample text")
+    User_app.system_call("read", "text.txt")
+
 
 
 #

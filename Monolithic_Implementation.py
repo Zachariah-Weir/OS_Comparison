@@ -13,17 +13,32 @@ class Monolithic:
     def __init__( self ):
         print( f'\nLoading Monolithic Kernel...' )
         self.file_system = File_System(kernel=self) #initialize File_System with kernel address as parameter
+        self.application_manager = Application_Manager(kernel=self)
         self.load_services()
         self.running = True
         if (self.running):
             print( f'\nMonolithic Kernel loaded' )
-            self.main()
 
     def load_services(self):
         print( f'Loading Kernel Services...')
         self.file_system.load_service()
+        self.application_manager.load_service()
+
+    def system_call_handler(self, operation, *args):
+        print(f"Monolithic Kernel: Received system call for '{operation}'.")
+        time.sleep(0.0001)
+        if operation == "read":
+            return self.file_system.read_file(*args)
+        elif operation == "write":
+            return self.file_system.write_file(*args)
+        else:
+            print(f"Monolithic Kernel: Unknown system call: {operation}")
+            return None
     
-    def main(self):
+    def create_application(self, application_name):
+        return self.application_manager.create_application(application_name)
+    
+    def start(self):
         print(f'Whatever comparisons we want run')
 
 
@@ -44,17 +59,48 @@ class Kernel_Service:
 #
 class File_System(Kernel_Service):
     def __init__(self, kernel):
-        super().__init__("file_System", kernel) #instantiates parent class (must include service name), inherits load_service function
+        super().__init__("file_system", kernel) #instantiates parent class (must include service name), inherits load_service function
         self.file_dict = {} #dictionary to simulate file management
 
     def read_file(self, file_name):
         print(f'File_System: Reading from "{file_name}"...') #print file read message
-        return self.file.get(file_name, "File not found") #.get method returns value of file_name key or "file not found" default
+        print(f'\nDisk loading file into memory...\n'); time.sleep( .002 ) #wait for disk loading
+        return self.file_dict.get(file_name, "File not found") #.get method returns value of file_name key or "file not found" default
     
     def write_file(self, file_name, file_content):
         print(f'File_System: Writing to "{file_name}"...') #print file write message
+        print(f'\nDisk writing to file...\n'); time.sleep( .002 ) #wait for disk writing
         self.file[file_name] = file_content #add file_name (key) and file_content (value) pair to file dictionary
         return True
+    
+#
+#   Application Manager class
+#
+class Application_Manager(Kernel_Service):
+    def __init__(self, kernel):
+        super().__init__("application_manager", kernel)
+        self.application_table = {} #dictionary to simulate application table
+
+    def create_application(self, application_name):
+        print(f'Application Manager: Creating user application "{application_name}"...')
+        current_application = Monolithic_User_Application(self.kernel, application_name)
+        self.application_table[application_name] = current_application
+        return current_application
+
+    def get_application(self, app_name):
+        return self.application_table.get(app_name)
+
+
+#
+#   User Application class
+#
+class Monolithic_User_Application:
+    def __init__(self, kernel, application_name):
+        self.kernel = kernel
+        self.application_name = application_name
+    
+    def system_call(self, operation, *args):
+        self.kernel.system_call_handler(operation, *args)
 
 
 
