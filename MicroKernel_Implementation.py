@@ -41,12 +41,12 @@ class Microkernel:
         for service in self.kernel_services + self.user_services:
             if service.service_name == message.receiver:
                 print(f'Microkernel: IPC for \"{message.operation}\" sending...')
-                try:
-                    service.receive_IPC(message)
-                except ValueError as error:
-                    print(error)
-                    print(f'Microkernel: Rebooting {message.receiver}')
-                    self.crash_recovery(message.receiver)
+                # try:
+                #     service.receive_IPC(message)
+                # except ValueError as error:
+                #     print(error)
+                #     print(f'Microkernel: Rebooting {message.receiver}')
+                #     self.crash_recovery(message.receiver)
                     
 
 
@@ -56,10 +56,10 @@ class Microkernel:
         print(f'Microkernel: System call for \"{operation}\" received')
         receiver = self.service_dict.get(operation)
 
-        if receiver:
-            self.IPC(IPC_Message(sender, receiver, operation, args))
-        else:
-            raise ValueError(f'Microkernel: Invalid system call \"{operation}\"') # throws error if invalid system call
+        # if receiver:
+        #     self.IPC(IPC_Message(sender, receiver, operation, args))
+        # else:
+        #     raise ValueError(f'Microkernel: Invalid system call \"{operation}\"') # throws error if invalid system call
         # In real microkernels, some system calls may be handeled by the kernel rather than IPC
     
     def crash_recovery(self, service_name):
@@ -83,18 +83,25 @@ class Microkernel:
 
     # Start OS
     def start_Micro(self):
-        print(f'   Loading Microkernel...')
+        print( f'   Loading Microkernel...' )
+
         time.sleep(0.005) # 5ms service manager startup
-
-        print(f'   Loading Kernel Services...')
+        print( f'   Starting System Service manager...' )
+        print( f'       Loading Core Services...' )
+        
         for service in self.kernel_services:
+            print( f'           ', end='' )
+            self.IPC(IPC_Message( "System Service Manager", service.service_name, f'Initialize {service.service_name} service...' ))
             service.load_service()
 
-        print(f'   Loading User Services...')
+        print( f'       Loading User Services...' )
+        
         for service in self.user_services:
+            print( f'           ', end='' )
+            self.IPC(IPC_Message( "System Service Manager", service.service_name, f'Initialize {service.service_name} service...' ))
             service.load_service()
 
-        if (self.running):
+        if ( self.running ):
             print( f'Microkernel booted' )
 
 
@@ -110,11 +117,11 @@ class Service:
         time.sleep(0.004) # 4ms service boot
 
     def load_service(self):
-        print(f'      Loading {self.service_name}...')
+        print(f'            Loading {self.service_name}...')
         time.sleep(0.004) # 4ms service boot
     
-    def receive_IPC(self, message):
-        print(f"{self.service_name} received IPC: operation='{message.operation}', args={message.args}")
+    # def receive_IPC(self, message):
+    #     print(f"{self.service_name} received IPC: operation='{message.operation}', args={message.args}")
 
 
 #   Kernel Service class
@@ -131,9 +138,9 @@ class User_Service(Service):
 #   File System class
 #
 class File_System(Service):
-    def __init__(self):
-        super().__init__("file_system")
-        self.file_dict = {}
+    # def __init__(self):
+    #     super().__init__("file_system")
+    #     self.file_dict = {}
 
     def read_file(self, file_name):
         print(f'File_System: Reading from "{file_name}"')

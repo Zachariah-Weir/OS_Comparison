@@ -57,7 +57,7 @@ def Micro_Boot():
     # Microkernel  
     print( f'Microkernel Simulation:\n- For boot speed comparison\n- Microkernel is booted including one user application\n')
     _Microkernel = Microkernel()                                # create Microkernel object
-    _File_System = File_System()                                # create service objects
+    _File_System = File_System( "File System" )                                # create service objects
     _User_Application = User_Application( "User Application")  
     _Microkernel.register_kernel_service( _File_System )        # register services to Microkernel
     _Microkernel.register_user_service( _User_Application )          
@@ -84,8 +84,29 @@ def Mono_Boot():
 #
 @Time_Efficiency_Decorator
 def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
-    print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
-    Microkernel.IPC(IPC_Message("sender1", "file_system", "sample_operation"))
+    print(
+    f'\n---------------------------------------------------------------------------\n\
+    Microkernel IPC Comparison:\n\n\
+    - Scenario: User application requests to read a file.\n\
+    - Measuring: Overhead due to IPC.\
+    \n---------------------------------------------------------------------------\n' )
+    # print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
+    User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
+    # User App SysCalls to Kernel
+    Microkernel.IPC(IPC_Message( User_Application.service_name, "Kernel", "Requesting to read file..."))
+    # Kernel IPCs to file system
+    Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
+    # File System IPCs to Disk
+    print( "?" )
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+    # Disk writes
+    print( "\nDisk reading file into memory...\n" )
+    # Disk IPCs to File System
+    print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
+    # File System IPCs to Kernel
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
+    # Kernel IPCs to User App
+    Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File avaialable for reading..." ))
 
 
 
