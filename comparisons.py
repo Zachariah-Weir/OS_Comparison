@@ -57,7 +57,7 @@ def Start_Monolithic():
 #
 @Time_Efficiency_Decorator
 def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
-    print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time being measured.\n' )
+    print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- IPC and system call measured.\n' )
     User_Application.kernel.SysCall( User_Application.service_name, "Kernel", "Requesting File Read via File System...")
     Microkernel.IPC( "Kernel", File_System.service_name, "Requesting to Read File..." )
     print( f'IPC: {File_System.service_name} -> Disk: "Requesting File Read"' ); time.sleep( .001 )
@@ -96,7 +96,7 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application):
     File_System.kernel.IPC( File_System.service_name, "Kernel", "File Write completed...")
     Microkernel.IPC( "Kernel", User_Application.service_name, "File Write completed...")
 
-
+@Time_Efficiency_Decorator
 def Mono_SysCall_Comparison(Kernel, User_Application):
     print( f'Monolithic Simulation:\n- For system call comparison\n- User application requests to read and write file.\n- SysCall times being measured.\n' )
 
@@ -120,7 +120,7 @@ def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Applicatio
     Microkernel.register_kernel_service( _File_System ); print( f'Registering File System service...' ); time.sleep(0.01)   # 10ms service restart
     _File_System.kernel.IPC( _File_System.service_name, "Kernel", "File System service successfully restarted..." )
 
-
+@Time_Efficiency_Decorator
 def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
     print( f'Microkernel Simulation:\n- For fault isolation comparison\n- User application requests to read file, but it fails.\n- Kernel reboot time is measured.\n' )
 

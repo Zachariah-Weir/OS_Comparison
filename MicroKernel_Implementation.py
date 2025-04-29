@@ -12,39 +12,59 @@ This file contains the implementation of the Microkernel class and its functions
 class Microkernel:
 
     # constructor
-    def __init__( self ):
+    def __init__(self):
+        print(f'\nBooting Microkernel')
+        time.sleep(0.01) # 10ms kernel boot
         self.kernel_services = []
         self.user_services = []
         self.running = True
 
+        self.service_dict = {
+            "read": "File_System",
+            "write": "File_System"
+        }
+
     # register kernel services to give access to kernel
-    def register_kernel_service( self, service ):
-        self.kernel_services.append( service )
+    def register_kernel_service(self, service):
+        self.kernel_services.append(service)
         service.kernel = self
 
     # register user services to give access to kernel
-    def register_user_service( self, service ):
-        self.user_services.append( service )
+    def register_user_service(self, service):
+        self.user_services.append(service)
         service.kernel = self
 
     # IPC service
-    def IPC( self, sender, receiver, message ):
+    def IPC(self, message):
         time.sleep(.001)    # set IPC time to 1ms
-        print( f'IPC: {sender} -> {receiver}: "{message}"' )
+        for service in self.kernel_services + self.user_services:
+            if service.service_name == message.receiver:
+                service.receive(message)
 
-    def SysCall( self, sender, receiver, service ):
-        time.sleep( .0002 ) # set SysCall time to .5ms
-        print( f'SysCall: {sender} -> {receiver}: {service}' )
+
+    def SysCall(self, sender, operation, *args):
+        time.sleep(.0002) # set SysCall time to .2ms
+
+        print(f'File_System: Reading from "{file_name}"')
+        
+        receiver = self.service_dict.get(operation)
+
+        if receiver:
+            self.IPC(IPC_Message(sender, receiver, operation, args))
+        else:
+            raise ValueError(f'Microkernel: Invalid system call \"{operation}\"') # throws error if invalid system call
+        # In real microkernels, some system calls may be handeled by the kernel rather than IPC
+
 
     # Start OS
-    def start_Micro( self ):
-        print( f'\nLoading Microkernel...' )
+    def start_Micro(self):
+        print(f'   Loading Microkernel...')
 
-        print( f'   Loading Kernel Services...')
+        print(f'   Loading Kernel Services...')
         for service in self.kernel_services:
             service.load_service()
 
-        print( f'   Loading User Services...' )
+        print(f'   Loading User Services...')
         for service in self.user_services:
             service.load_service()
 
@@ -55,40 +75,73 @@ class Microkernel:
 class Service:
 
     # constructor
-    def __init__( self, service_name ):
+    def __init__(self, service_name):
         self.service_name = service_name
         self.kernel = None
 
-    def load_service( self ):
-        print( f'       Loading {self.service_name}...' )
+    def load_service(self ):
+        print(f'      Loading {self.service_name}...')
+        time.sleep(0.004) # 4ms service boot
+    
+    def receive_IPC(self, message):
+        print(f"{self.service_name} received IPC: operation='{message.operation}', args={message.args}")
 
 
 #   Kernel Service class
-class Kernel_Service( Service ):
+class Kernel_Service(Service):
     pass
 
 
 #   User Service class
-class User_Service( Service ):
+class User_Service(Service):
     pass
 
 
 #
 #   File System class
 #
-class File_System( Kernel_Service ):
+class File_System(Kernel_Service):
+    def __init__(self):
+        super().__init__("file_system")
+        self.file_dict = {}
 
-    # read file
-    def read_file( self ):
-        self.kernel.IPC( self.service_name, "Kernel", "Reading File..." )
+    def read_file(self, file_name):
+        print(f'File_System: Reading from "{file_name}"')
+        print(f'   Disk loading file into memory...\n')
+        time.sleep(0.002)
+        print(f'File_System: "{file_name}" read from successfully')
+        return self.file_dict.get(file_name, "File not found") # in real microkernel, would be sent as IPC message
 
-    # write file
-    def write_file( self ):
-        self.kernel.IPC( self.service_name, "Kernel", "Writing File..." )
+    def write_file(self, file_name, file_content):
+        print(f'File_System: Writing to "{file_name}"')
+        print(f'   Disk writing to file...\n')
+        time.sleep(0.0025)
+        self.file_dict[file_name] = file_content
+        print(f'File_System: "{file_name}" writen to successfully')
+        return True # in real microkernel, would be sent as IPC message
+
+    # Handle IPC messages
+    def receive_IPC(self, message):
+        if message.operation == "read":
+            file_name = message.args[0]  # unpack first argument
+            return self.read_file(file_name)
+        elif message.operation == "write":
+            file_name = message.args[0]   # first argument
+            file_content = message.args[1]  # second argument
 
 
 #
 #   User Application class
 #
-class User_Application( Service ):
+class User_Application(Service):
     pass
+
+#
+#   Message class (used for IPC)
+#
+class IPC_Message:
+    def __init__(self, sender, receiver, operation, args=None):
+        self.sender = sender
+        self.receiver = receiver
+        self.operation = operation
+        self.args = args or []

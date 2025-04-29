@@ -75,12 +75,14 @@ class File_System(Kernel_Service):
     def read_file(self, file_name):
         print(f'File_System: Reading from "{file_name}"') # print file read message
         print(f'   Disk loading file into memory...\n'); time.sleep( .002 ) # wait for disk loading 2ms
+        print(f'File_System: "{file_name}" read from successfully')
         return self.file_dict.get(file_name, "File not found") # .get method returns value of file_name key or "file not found" default
     
     def write_file(self, file_name, file_content):
         print(f'File_System: Writing to "{file_name}"') # print file write message
         print(f'   Disk writing to file...\n'); time.sleep( .0025 ) # wait for disk writing 2.5ms
         self.file_dict[file_name] = file_content # add file_name (key) and file_content (value) pair to file dictionary
+        print(f'File_System: "{file_name}" writen to successfully')
         return True
     
 #
