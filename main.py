@@ -11,13 +11,9 @@ This file contains:
 
 def main():
 
-    _Monolithic, _User_Application_Mono = Start_Monolithic()
-    Monolithic_Tests(_Monolithic, _User_Application_Mono)
+    Monolithic_Tests()
+    Micro_Tests()
 
-    _Microkernel, _File_System, _User_Application_Micro = Start_Microkernel()
-    Micro_Tests(_Microkernel, _File_System, _User_Application_Micro)
-
-    # comment
 
 
 if __name__ == "__main__":

@@ -15,8 +15,8 @@ Comparison of Monolithic and Microkernel Operating Systems
 
 #### What to Measure
 
-- The time it takes for both OSes to pass a message between modules.
-- How much overhead is added for context switches or message relays in Microkernels.
+- The time it takes the Microkernel to pass a message between modules.
+- How much overhead is added for message relays in Microkernels.
 
 #### Takeaway
 

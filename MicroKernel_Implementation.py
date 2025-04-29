@@ -41,7 +41,13 @@ class Microkernel:
         for service in self.kernel_services + self.user_services:
             if service.service_name == message.receiver:
                 print(f'Microkernel: IPC for \"{message.operation}\" sending...')
-                service.receive_IPC(message)
+                try:
+                    service.receive_IPC(message)
+                except ValueError as error:
+                    print(error)
+                    print(f'Microkernel: Rebooting {message.receiver}')
+                    self.crash_recovery(message.receiver)
+                    
 
 
     def SysCall(self, sender, operation, *args):
@@ -55,11 +61,30 @@ class Microkernel:
         else:
             raise ValueError(f'Microkernel: Invalid system call \"{operation}\"') # throws error if invalid system call
         # In real microkernels, some system calls may be handeled by the kernel rather than IPC
+    
+    def crash_recovery(self, service_name):
+        time.sleep(0.002) # 2ms service teardown
+        for service in self.kernel_services:
+            if service.service_name == service_name:
+                self.kernel_services.remove(service)
+                new_system = File_System()
+                self.register_kernel_service(new_system)
+                new_system.load_service()
+
+        for service in self.user_services:
+            if service.service_name == service_name:
+                self.user_services.remove(service)
+                new_system = File_System()
+                self.register_user_service(new_system)
+                new_system.load_service()
+
+
 
 
     # Start OS
     def start_Micro(self):
         print(f'   Loading Microkernel...')
+        time.sleep(0.005) # 5ms service manager startup
 
         print(f'   Loading Kernel Services...')
         for service in self.kernel_services:
@@ -82,8 +107,9 @@ class Service:
     def __init__(self, service_name):
         self.service_name = service_name
         self.kernel = None
+        time.sleep(0.004) # 4ms service boot
 
-    def load_service(self ):
+    def load_service(self):
         print(f'      Loading {self.service_name}...')
         time.sleep(0.004) # 4ms service boot
     
@@ -134,6 +160,8 @@ class File_System(Service):
             file_name = message.args[0]   # first argument
             file_content = message.args[1]  # second argument
             return self.write_file(file_name, file_content)
+        elif message.operation =="read_fault":
+            raise ValueError(f'Monolithic Kernel: Invalid system call \"{message.operation}\"') # throws error if invalid system call
 
 
 #

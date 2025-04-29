@@ -59,10 +59,10 @@ class Kernel_Service:
     def __init__(self, service_name, kernel):
         self.service_name = service_name #requires all kernel services to provide name and kernel object address
         self.kernel = kernel
+        time.sleep(0.004) # 4ms service boot
 
     def load_service(self): #inherited by all child classes
         print(f'   Loading {self.service_name}...')
-        time.sleep(0.004) # 4ms service boot
 
 #
 #   File System class

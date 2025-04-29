@@ -8,7 +8,6 @@ Time efficiency decorator included to be applied as a timer where needed.
 """
 
 
-# Time Efficiency Decorator
 def Time_Efficiency_Decorator( func ):
     def wrapper( *args, **kwargs):
         # get start time
@@ -22,12 +21,33 @@ def Time_Efficiency_Decorator( func ):
         return elapsed_time
     return wrapper
 
+def Time_Efficiency_Result_Decorator(func):
+    def wrapper(*args, **kwargs):
+        # Get start time
+        start_time = time.time()
+
+        # Run the function and store the result
+        result = func(*args, **kwargs)
+
+        # Get end time
+        end_time = time.time()
+
+        # Calculate elapsed time
+        elapsed_time = end_time - start_time
+
+        # Return both the result and the elapsed time
+        return result, elapsed_time
+
+    return wrapper
+
 
 #
 #   Start Microkernel
 #
-def Start_Microkernel():
+@Time_Efficiency_Result_Decorator
+def Micro_Boot():
     # Microkernel  
+    print( f'Microkernel Simulation:\n- For boot speed comparison\n- Microkernel is booted including one user application\n')
     _Microkernel = Microkernel()                                # create Microkernel object
     _File_System = File_System()                                # create service objects
     _User_Application = User_Application( "User Application")  
@@ -42,7 +62,9 @@ def Start_Microkernel():
 #
 #   Start Monolithic
 #
-def Start_Monolithic():
+@Time_Efficiency_Result_Decorator
+def Mono_Boot():
+    print( f'Monolithic Simulation:\n- For boot speed comparison\n- Monolithic Kernel is booted including one user application\n')
 
     _Monolithic = Monolithic() # create Monolithic object
     # no necessity to load services individually
@@ -59,13 +81,6 @@ def Start_Monolithic():
 def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
     Microkernel.IPC(IPC_Message("sender1", "file_system", "sample_operation"))
-
-    
-@Time_Efficiency_Decorator
-def Mono_IPC_Comparison(Kernel, User_Application):
-    print(f'\nMonolithic Simulation:\n- For IPC comparison\n- User application requests to read file.\n- Only system call time being measured (no IPC necessary).\n')
-
-    User_Application.system_call("read", "text.txt")
 
 
 
@@ -93,15 +108,9 @@ def Mono_SysCall_Comparison(Kernel, User_Application):
 #
 @Time_Efficiency_Decorator
 def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application ):
-    print( f'Microkernel Simulation:\n- User application requests to read file, but it fails.\n- Only service restart times being measured.\n' )
-    # attempt to read a file, but crash the file system
-    User_Application.kernel.SysCall( User_Application.service_name, "Kernel", "Requesting File Read via File System...")
-    Microkernel.IPC( "Kernel", _File_System.service_name, "Requesting to Read File..." )
-    del _File_System; print( f'ERROR: File System Error - Service Unavailable. Restarting the service...' )
-    # restart the file system
-    _File_System = File_System( "File System" )
-    Microkernel.register_kernel_service( _File_System ); print( f'Registering File System service...' ); time.sleep(0.01)   # 10ms service restart
-    _File_System.kernel.IPC( _File_System.service_name, "Kernel", "File System service successfully restarted..." )
+
+    User_Application.system_call("read_fault", "text.txt")
+
 
 @Time_Efficiency_Decorator
 def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
@@ -109,69 +118,14 @@ def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
 
     User_Application.system_call("read_fault", "text.txt")
 
-#
-# IPC comparisons: simulate a file read
-#
-def IPC_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono):
-    # Microkernel
-    microkernel_elapsed_time = Micro_IPC_Comparison(_Microkernel, _File_System, _User_Application_Micro)
-    print(f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time:.6f}\n')
+def Monolithic_Tests():
 
-    # Monolithic
-    monolithic_elapsed_time = Mono_IPC_Comparison(_Monolithic, _User_Application_Mono)
-    print(f'Monolithic Elapsed Time: {monolithic_elapsed_time:.6f}\n')
+    # Kernel Boot
+    result, monolithic_elapsed_time_Boot = Mono_Boot()
+    print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_Boot:.6f}\n')
 
-    # Results
-    print(f'Microkernel vs Monolithic Simulation Results:')
-    print(f'   Microkernel elapsed SysCall + IPC time: {microkernel_elapsed_time:.6f}')   # subtracting SysCall time to isolate IPC time
-    print(f'   Monolithic elapsed SysCall time: {monolithic_elapsed_time:.6f}') # can't substract system call because that is only component
-    print(f'   Elapsed time difference: {microkernel_elapsed_time - monolithic_elapsed_time:.6f}')
-
-
-#
-# System Call comparisons: simulate a file read and write
-#
-def SysCall_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono):
-    # Microkernel
-    microkernel_elapsed_time = Micro_SysCall_Comparison(_Microkernel, _File_System, _User_Application_Micro)
-    print(f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time:.6f}\n')
-
-    # Monolithic
-    monolithic_elapsed_time = Mono_SysCall_Comparison(_Monolithic, _User_Application_Mono)
-    print(f'Monolithic Elapsed Time: {monolithic_elapsed_time:.6f}\n')
-
-    # Results
-    print(f'Microkernel vs Monolithic Simulation Results:')
-    print(f'   Microkernel elapsed SysCall + IPC time: {microkernel_elapsed_time:.6f}')   # subtracting SysCall time to isolate IPC time
-    print(f'   Monolithic elapsed SysCall time: {monolithic_elapsed_time:.6f}') # can't substract system call because that is only component
-    print(f'   Elapsed time difference: {microkernel_elapsed_time - monolithic_elapsed_time:.6f}')
-
-
-#
-# Fault Isolation comparisons: simulate a file read failure
-#
-def Fault_Isolation_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono):
-    # Microkernel
-    microkernel_elapsed_time = Micro_Fault_Isolation_Comparison(_Microkernel, _File_System, _User_Application_Micro)
-    print(f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time:.6f}\n')
-
-    # Monolithic
-    monolithic_elapsed_time = Mono_Fault_Isolation_Comparison(_Monolithic, _User_Application_Mono)
-    print(f'Monolithic Elapsed Time: {monolithic_elapsed_time:.6f}\n')
-
-    # Results
-    print(f'Microkernel vs Monolithic Simulation Results:')
-    print(f'   Microkernel elapsed SysCall + IPC time: {microkernel_elapsed_time:.6f}')   # subtracting SysCall time to isolate IPC time
-    print(f'   Monolithic elapsed SysCall time: {monolithic_elapsed_time:.6f}') # can't substract system call because that is only component
-    print(f'   Elapsed time difference: {microkernel_elapsed_time - monolithic_elapsed_time:.6f}')
-
-
-def Monolithic_Tests(_Monolithic, _User_Application_Mono):
+    _Monolithic, _User_Application_Mono = result[0], result[1]
     
-    # IPC
-    monolithic_elapsed_time_IPC = Mono_IPC_Comparison(_Monolithic, _User_Application_Mono)
-    print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_IPC:.6f}\n')
-
     # System Call
     monolithic_elapsed_time_SysCall = Mono_SysCall_Comparison(_Monolithic, _User_Application_Mono)
     print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_SysCall:.6f}\n')
@@ -180,9 +134,15 @@ def Monolithic_Tests(_Monolithic, _User_Application_Mono):
     monolithic_elapsed_time_fault = Mono_Fault_Isolation_Comparison(_Monolithic, _User_Application_Mono)
     print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_fault:.6f}\n')
 
-    return monolithic_elapsed_time_IPC, monolithic_elapsed_time_SysCall, monolithic_elapsed_time_fault
+    return monolithic_elapsed_time_SysCall, monolithic_elapsed_time_fault
 
-def Micro_Tests(_Microkernel, _File_System, _User_Application_Micro):
+def Micro_Tests():
+
+    # Kernel Boot
+    result, micro_elapsed_time_Boot = Micro_Boot()
+    print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_Boot:.6f}\n')
+
+    _Microkernel, _File_System, _User_Application_Micro = result[0], result[1], result[2]
     
     # IPC
     micro_elapsed_time_IPC = Micro_IPC_Comparison(_Microkernel, _File_System, _User_Application_Micro)
