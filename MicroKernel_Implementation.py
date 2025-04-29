@@ -40,7 +40,7 @@ class Microkernel:
         time.sleep(.001)    # set IPC time to 1ms
         for service in self.kernel_services + self.user_services:
             if service.service_name == message.receiver:
-                print(f'Microkernel: IPC for \"{message.operation}\" sending...')
+                print(f'IPC: {message.sender} -> {message.receiver}: \"{message.operation}\"')
                 # try:
                 #     service.receive_IPC(message)
                 # except ValueError as error:
@@ -117,7 +117,7 @@ class Service:
         time.sleep(0.004) # 4ms service boot
 
     def load_service(self):
-        print(f'            Loading {self.service_name}...')
+        print(f'                Loading {self.service_name}...')
         time.sleep(0.004) # 4ms service boot
     
     # def receive_IPC(self, message):
