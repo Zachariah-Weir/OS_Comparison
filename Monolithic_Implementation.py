@@ -13,7 +13,7 @@ class Monolithic:
     def __init__( self ):
         print( f'\nBooting Monolithic Kernel' )
         time.sleep(0.01) # 10ms kernel boot
-        self.file_system = File_System(kernel=self) # initialize File_System with kernel address as parameter
+        self.file_system = Mono_File_System(kernel=self) # initialize File_System with kernel address as parameter
         self.application_manager = Application_Manager(kernel=self) # initialize Application_Manager
         self.load_services()
         self.running = True
@@ -67,22 +67,22 @@ class Kernel_Service:
 #
 #   File System class
 #
-class File_System(Kernel_Service):
+class Mono_File_System(Kernel_Service):
     def __init__(self, kernel):
         super().__init__("file_system", kernel) # instantiates parent class (must include service name), inherits load_service function
         self.file_dict = {} # dictionary to simulate file management
 
     def read_file(self, file_name):
         print(f'File_System: Reading from "{file_name}"') # print file read message
-        print(f'   Disk loading file into memory...\n'); time.sleep( .002 ) # wait for disk loading 2ms
-        print(f'File_System: "{file_name}" read from successfully')
+        print(f'   Disk loading file into memory...'); time.sleep( .002 ) # wait for disk loading 2ms
+        print(f'File_System: "{file_name}" read successfully')
         return self.file_dict.get(file_name, "File not found") # .get method returns value of file_name key or "file not found" default
     
     def write_file(self, file_name, file_content):
         print(f'File_System: Writing to "{file_name}"') # print file write message
-        print(f'   Disk writing to file...\n'); time.sleep( .0025 ) # wait for disk writing 2.5ms
+        print(f'   Disk writing to file...'); time.sleep( .0025 ) # wait for disk writing 2.5ms
         self.file_dict[file_name] = file_content # add file_name (key) and file_content (value) pair to file dictionary
-        print(f'File_System: "{file_name}" writen to successfully')
+        print(f'File_System: "{file_name}" written to successfully')
         return True
     
 #

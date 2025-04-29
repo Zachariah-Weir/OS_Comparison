@@ -12,14 +12,10 @@ This file contains:
 def main():
 
     _Monolithic, _User_Application_Mono = Start_Monolithic()
-    _Microkernel, _File_System, _User_Application_Micro = Start_Microkernel()
-
     Monolithic_Tests(_Monolithic, _User_Application_Mono)
-    Micro_Tests(_Monolithic, _User_Application_Mono)
-    
-    IPC_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono)
-    SysCall_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono)
-    Fault_Isolation_Comparison(_Microkernel, _File_System, _User_Application_Micro, _Monolithic, _User_Application_Mono)
+
+    _Microkernel, _File_System, _User_Application_Micro = Start_Microkernel()
+    Micro_Tests(_Microkernel, _File_System, _User_Application_Micro)
 
     # comment
 
