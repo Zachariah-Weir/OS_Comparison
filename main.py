@@ -19,15 +19,18 @@ def main():
         _Microkernel, _File_System, _User_Application = Start_Microkernel()
         # run MICROKERNEL IPC simulation
         microkernel_elapsed_time = Micro_IPC_Comparison( _Microkernel, _File_System, _User_Application )
-        print( f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time}\n' )
+        print(f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time:.6f}\n')
 
         # Monolithic
+        _Monolithic = Start_Monolithic()
+        monolithic_elapsed_time = Mono_IPC_Comparison(_Monolithic)
+        print(f'Monolithic Elapsed Time: {monolithic_elapsed_time:.6f}\n')
 
         # Results
-        print( f'Microkernel vs Monolithic Simulation Results:' )
-        print( f'   Microkernel elapsed IPC time: {microkernel_elapsed_time - 0.0025}s' )   # subtracting SysCall time to isolate IPC time
-        print( f'   Monolithic elapsed IPC time: ' )
-        print( f'   Elapsed time difference:' )
+        print(f'Microkernel vs Monolithic Simulation Results:')
+        print(f'   Microkernel elapsed SysCall + IPC time: {microkernel_elapsed_time}')   # subtracting SysCall time to isolate IPC time
+        print(f'   Monolithic elapsed SysCall time: {monolithic_elapsed_time}') # can't substract system call because that is only component
+        print(f'   Elapsed time difference: {microkernel_elapsed_time - monolithic_elapsed_time}')
 
 
     #
