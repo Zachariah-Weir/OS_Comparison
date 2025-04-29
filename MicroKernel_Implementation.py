@@ -39,7 +39,7 @@ class Microkernel:
     def IPC(self, message):
         time.sleep(.001)    # set IPC time to 1ms
         for service in self.kernel_services + self.user_services:
-            if service.service_name == message.receiver:
+            # if service.service_name == message.receiver:
                 print(f'IPC: {message.sender} -> {message.receiver}: \"{message.operation}\"')
                 # try:
                 #     service.receive_IPC(message)

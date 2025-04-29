@@ -91,14 +91,12 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     - Measuring: Overhead due to IPC.\
     \n---------------------------------------------------------------------------\n' )
     # print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
+    # User App SysCalls and IPCs to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
-    # User App SysCalls to Kernel
-    Microkernel.IPC(IPC_Message( User_Application.service_name, "Kernel", "Requesting to read file..."))
     # Kernel IPCs to file system
     Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
     # File System IPCs to Disk
-    print( "?" )
-    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+    File_System.kernel.IPC(IPC_Message( "File_System.service_name", "Disk", "Requesting to read file..." ))
 
     # Disk writes
     print( "\nDisk reading file into memory...\n" )
