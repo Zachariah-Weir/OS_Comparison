@@ -73,7 +73,7 @@ def Mono_Boot():
 
     _Monolithic = Monolithic() # create Monolithic object
     # no necessity to load services individually
-    _User_Application = _Monolithic.system_call_handler("create_appliaction", "user_application1")
+    _User_Application = _Monolithic.system_call_handler("create_application", "user_application1")
 
     return _Monolithic, _User_Application
 
