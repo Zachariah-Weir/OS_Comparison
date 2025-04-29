@@ -36,6 +36,8 @@ class Monolithic:
                 return self.file_system.read_file(*args)
             elif operation == "write":
                 return self.file_system.write_file(*args)
+            elif operation == "create_application":
+                return self.application_manager.create_application(*args)
             else:
                 raise ValueError(f'Monolithic Kernel: Invalid system call \"{operation}\"') # throws error if invalid system call
         except ValueError as error:
@@ -43,10 +45,6 @@ class Monolithic:
             print(f"Monolithic Kernel: Rebooting Kernel")
             time.sleep(0.005) # 5ms kernel teardown
             self.__init__()
-            
-    
-    def create_application(self, application_name):
-        return self.application_manager.create_application(application_name)
     
     def main(self):
         print(f'Whatever comparisons we want run')
