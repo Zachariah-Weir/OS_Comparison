@@ -27,16 +27,23 @@ class Monolithic:
         self.application_manager.load_service()
 
     def system_call_handler(self, operation, *args):
-        print(f"Monolithic Kernel: Received system call for \"{operation}\"")
-        time.sleep(0.0002) # 0.2ms dispatch
-        # no IPC required as all functions are called directly from kernel
-        if operation == "read":
-            return self.file_system.read_file(*args)
-        elif operation == "write":
-            return self.file_system.write_file(*args)
-        else:
-            print(f"Monolithic Kernel: Unknown system call: {operation}")
-            return None
+        
+        try:
+            print(f"Monolithic Kernel: Received system call for \"{operation}\"")
+            time.sleep(0.0002) # 0.2ms dispatch
+            # no IPC required as all functions are called directly from kernel
+            if operation == "read":
+                return self.file_system.read_file(*args)
+            elif operation == "write":
+                return self.file_system.write_file(*args)
+            else:
+                raise ValueError(f'Monolithic Kernel: Invalid system call \"{operation}\"') # throws error if invalid system call
+        except ValueError as error:
+            print(error)
+            print(f"Monolithic Kernel: Rebooting Kernel")
+            time.sleep(0.005) # 5ms kernel teardown
+            self.__init__()
+            
     
     def create_application(self, application_name):
         return self.application_manager.create_application(application_name)
