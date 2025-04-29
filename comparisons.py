@@ -56,7 +56,7 @@ def Start_Monolithic():
 #
 @Time_Efficiency_Decorator
 def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
-    print( f'Microkernel Simulation:\n- User application requests to read file.\n- Only IPC time being measured.\n' )
+    print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time being measured.\n' )
     User_Application.kernel.SysCall( User_Application.service_name, "Kernel", "Requesting File Read via File System...")
     Microkernel.IPC( "Kernel", File_System.service_name, "Requesting to Read File..." )
     print( f'IPC: {File_System.service_name} -> Disk: "Requesting File Read"' ); time.sleep( .001 )
@@ -67,7 +67,7 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     
 @Time_Efficiency_Decorator
 def Mono_IPC_Comparison(Monolithic_Kernel):
-    print(f'Monolithic Simulation:\n- User application requests to read file.\n- Only system call time being measured (no IPC necessary).\n')
+    print(f'\nMonolithic Simulation:\n- User application requests to read file.\n- Only system call time being measured (no IPC necessary).\n')
     User_app = Monolithic_Kernel.create_application("User_App1")
     User_app.system_call("read", "text.txt")
 

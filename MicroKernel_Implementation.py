@@ -33,7 +33,7 @@ class Microkernel:
         print( f'IPC: {sender} -> {receiver}: "{message}"' )
 
     def SysCall( self, sender, receiver, service ):
-        time.sleep( .0005 ) # set SysCall time to .5ms
+        time.sleep( .0002 ) # set SysCall time to .5ms
         print( f'SysCall: {sender} -> {receiver}: {service}' )
 
     # Start OS

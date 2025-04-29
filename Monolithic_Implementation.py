@@ -11,23 +11,23 @@ class Monolithic:
 
     # constructor
     def __init__( self ):
-        print( f'\nLoading Monolithic Kernel...' )
+        print( f'\nBooting Monolithic Kernel' )
         time.sleep(0.01) # 10ms kernel boot
         self.file_system = File_System(kernel=self) # initialize File_System with kernel address as parameter
         self.application_manager = Application_Manager(kernel=self) # initialize Application_Manager
         self.load_services()
         self.running = True
         if (self.running):
-            print( f'\nMonolithic Kernel loaded' )
+            print( f'Monolithic Kernel booted' )
 
     def load_services(self):
-        print( f'Loading Kernel Services...')
+        print( f'   Loading Kernel Services...')
         time.sleep(0.005) # 5ms service manager startup
         self.file_system.load_service()
         self.application_manager.load_service()
 
     def system_call_handler(self, operation, *args):
-        print(f"Monolithic Kernel: Received system call for '{operation}'.")
+        print(f"Monolithic Kernel: Received system call for \"{operation}\"")
         time.sleep(0.0002) # 0.2ms dispatch
         # no IPC required as all functions are called directly from kernel
         if operation == "read":
@@ -54,7 +54,7 @@ class Kernel_Service:
         self.kernel = kernel
 
     def load_service(self): #inherited by all child classes
-        print(f'  Loading {self.service_name}...')
+        print(f'   Loading {self.service_name}...')
         time.sleep(0.004) # 4ms service boot
 
 #
@@ -66,14 +66,14 @@ class File_System(Kernel_Service):
         self.file_dict = {} # dictionary to simulate file management
 
     def read_file(self, file_name):
-        print(f'File_System: Reading from "{file_name}"...') # print file read message
-        print(f'\nDisk loading file into memory...\n'); time.sleep( .002 ) # wait for disk loading 2ms
+        print(f'File_System: Reading from "{file_name}"') # print file read message
+        print(f'   Disk loading file into memory...\n'); time.sleep( .002 ) # wait for disk loading 2ms
         return self.file_dict.get(file_name, "File not found") # .get method returns value of file_name key or "file not found" default
     
     def write_file(self, file_name, file_content):
-        print(f'File_System: Writing to "{file_name}"...') # print file write message
-        print(f'\nDisk writing to file...\n'); time.sleep( .0025 ) # wait for disk writing 2.5ms
-        self.file[file_name] = file_content # add file_name (key) and file_content (value) pair to file dictionary
+        print(f'File_System: Writing to "{file_name}"') # print file write message
+        print(f'   Disk writing to file...\n'); time.sleep( .0025 ) # wait for disk writing 2.5ms
+        self.file_dict[file_name] = file_content # add file_name (key) and file_content (value) pair to file dictionary
         return True
     
 #

@@ -58,8 +58,8 @@ def main():
         microkernel_elapsed_time = Micro_Fault_Isolation_Comparison( _Microkernel, _File_System, _User_Application )
         print( f'\nMicrokernel Elapsed Time: {microkernel_elapsed_time - .0005 - .001*2}' )
 
-
-    Fault_Isolation_Comparison()
+    print(f'This is where IPC comparison begins')
+    IPC_comparison()
 
 
 if __name__ == "__main__":
