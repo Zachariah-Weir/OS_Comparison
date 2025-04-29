@@ -99,6 +99,7 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     # File System IPCs to Disk
     print( "?" )
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+
     # Disk writes
     print( "\nDisk reading file into memory...\n" )
     # Disk IPCs to File System

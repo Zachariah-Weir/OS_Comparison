@@ -53,8 +53,8 @@ class Microkernel:
     def SysCall(self, sender, operation, *args):
         time.sleep(.0002) # set SysCall time to .2ms
 
-        print(f'Microkernel: System call for \"{operation}\" received')
-        receiver = self.service_dict.get(operation)
+        print(f'SysCall: {sender} -> Kernel: \"{operation}\"')
+        # receiver = self.service_dict.get(operation)
 
         # if receiver:
         #     self.IPC(IPC_Message(sender, receiver, operation, args))
