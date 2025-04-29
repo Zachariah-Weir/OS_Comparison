@@ -1,5 +1,6 @@
 from MicroKernel_Implementation import *
 from Monolithic_Implementation import *
+from matplotlib import pyplot as plt
 
 
 """
@@ -7,6 +8,11 @@ This fiile contains all the performance comparison simulations done for this pro
 Time efficiency decorator included to be applied as a timer where needed.
 """
 
+
+
+#
+#   Time Efficiency Decorators
+#
 
 def Time_Efficiency_Decorator( func ):
     def wrapper( *args, **kwargs):
@@ -20,6 +26,7 @@ def Time_Efficiency_Decorator( func ):
         elapsed_time = end_time - start_time
         return elapsed_time
     return wrapper
+
 
 def Time_Efficiency_Result_Decorator(func):
     def wrapper(*args, **kwargs):
@@ -41,8 +48,9 @@ def Time_Efficiency_Result_Decorator(func):
     return wrapper
 
 
+
 #
-#   Start Microkernel
+#   Start OSes
 #
 @Time_Efficiency_Result_Decorator
 def Micro_Boot():
@@ -59,9 +67,6 @@ def Micro_Boot():
     return _Microkernel, _File_System, _User_Application
 
 
-#
-#   Start Monolithic
-#
 @Time_Efficiency_Result_Decorator
 def Mono_Boot():
     print( f'Monolithic Simulation:\n- For boot speed comparison\n- Monolithic Kernel is booted including one user application\n')
@@ -94,6 +99,7 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application):
     User_Application.system_call("write", "text.txt", "sample text")
     User_Application.system_call("read", "text.txt")
 
+
 @Time_Efficiency_Decorator
 def Mono_SysCall_Comparison(Kernel, User_Application):
     print( f'Monolithic Simulation:\n- For system call comparison\n- User application requests to read and write file.\n- SysCall times being measured.\n' )
@@ -108,7 +114,6 @@ def Mono_SysCall_Comparison(Kernel, User_Application):
 #
 @Time_Efficiency_Decorator
 def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application ):
-
     User_Application.system_call("read_fault", "text.txt")
 
 
@@ -118,6 +123,11 @@ def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
 
     User_Application.system_call("read_fault", "text.txt")
 
+
+
+#
+#   Combined Comparison Tests
+#
 def Monolithic_Tests():
 
     # Kernel Boot
@@ -135,6 +145,7 @@ def Monolithic_Tests():
     print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_fault:.6f}\n')
 
     return monolithic_elapsed_time_SysCall, monolithic_elapsed_time_fault
+
 
 def Micro_Tests():
 
@@ -159,3 +170,37 @@ def Micro_Tests():
     return micro_elapsed_time_IPC, micro_elapsed_time_SysCall, micro_elapsed_time_fault
 
     
+
+#
+#   Plot a Bar Graph
+#
+def plot_bar_graph( title, ylabel, xlabel, values, xlabels ):
+    # if number of values doesn't match number of labels on x-axis, throw error
+    if len( values ) != len( xlabels ):
+        raise ValueError( "Length of values and xlabels must be the same." )
+
+    # generate x-axis positions for each value
+    x = list( range(len(values)) )
+
+    # set figure size and bar info
+    plt.figure( figsize=(8, 6) )
+    bars = plt.bar( x, values, color='skyblue' )
+
+    # Title and axis labels
+    plt.title( title )
+    plt.ylabel( ylabel )
+    plt.xlabel( xlabel )
+
+    # Custom x-axis labels
+    plt.xticks( x, xlabels, rotation=45 )
+
+    # Add value labels on top of each bar
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f'{height:.2f}',
+            ha='center',
+            va='bottom'
+        )
