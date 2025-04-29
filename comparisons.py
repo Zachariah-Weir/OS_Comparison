@@ -55,9 +55,14 @@ def Time_Efficiency_Result_Decorator(func):
 @Time_Efficiency_Result_Decorator
 def Micro_Boot():
     # Microkernel  
-    print( f'Microkernel Simulation:\n- For boot speed comparison\n- Microkernel is booted including one user application\n')
+    print(
+    f'\n---------------------------------------------------------------------------\n\n\
+    Microkernel Boot Comparison:\n\n\
+    - Scenario: Booting up Microkernel OS.\n\
+    - Measuring: Boot Overhead due to IPC.\
+    \n\n---------------------------------------------------------------------------\n' )
     _Microkernel = Microkernel()                                # create Microkernel object
-    _File_System = File_System( "File System" )                                # create service objects
+    _File_System = File_System( "File System" )                 # create service objects
     _User_Application = User_Application( "User Application")  
     _Microkernel.register_kernel_service( _File_System )        # register services to Microkernel
     _Microkernel.register_user_service( _User_Application )          
@@ -85,11 +90,11 @@ def Mono_Boot():
 @Time_Efficiency_Decorator
 def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     print(
-    f'\n---------------------------------------------------------------------------\n\
+    f'\n---------------------------------------------------------------------------\n\n\
     Microkernel IPC Comparison:\n\n\
     - Scenario: User application requests to read a file.\n\
     - Measuring: Overhead due to IPC.\
-    \n---------------------------------------------------------------------------\n' )
+    \n\n---------------------------------------------------------------------------\n' )
     # print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
     # User App SysCalls and IPCs to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
@@ -105,7 +110,7 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
     # Kernel IPCs to User App
-    Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File avaialable for reading..." ))
+    Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File loaded into memory..." ))
 
 
 
@@ -113,15 +118,20 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
 #   System Call comparisons
 #
 @Time_Efficiency_Decorator
-def Micro_SysCall_Comparison( Microkernel, File_System, User_Application):
-    print( f'Microkernel Simulation:\n- User application requests to read and write file.\n- Only IPC and SysCall times being measured.\n' )
-    
-    User_Application.system_call("write", "text.txt", "sample text")
-    User_Application.system_call("read", "text.txt")
+def Micro_SysCall_Comparison( Microkernel, File_System, User_Application) :
+    print(
+    f'\n---------------------------------------------------------------------------\n\n\
+    Microkernel SysCall Comparison:\n\n\
+    - Scenario: User application requests to read and write to a file.\n\
+    - Measuring: SysCall Overhead due to IPC.\
+    \n\n---------------------------------------------------------------------------\n' )
+
+    User_Application.system_call( "write", "text.txt", "sample text" )
+    User_Application.system_call( "read", "text.txt" )
 
 
 @Time_Efficiency_Decorator
-def Mono_SysCall_Comparison(Kernel, User_Application):
+def Mono_SysCall_Comparison( Kernel, User_Application ):
     print( f'Monolithic Simulation:\n- For system call comparison\n- User application requests to read and write file.\n- SysCall times being measured.\n' )
 
     User_Application.system_call("write", "text.txt", "sample text")
@@ -134,6 +144,12 @@ def Mono_SysCall_Comparison(Kernel, User_Application):
 #
 @Time_Efficiency_Decorator
 def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application ):
+    print(
+    f'\n---------------------------------------------------------------------------\n\n\
+    Microkernel Fault Isolation Comparison:\n\n\
+    - Scenario: User application attempts to read a file, but File Sytem crashes.\n\
+    - Measuring: Overhead due to IPC.\
+    \n\n---------------------------------------------------------------------------\n' )
     User_Application.system_call("read_fault", "text.txt")
 
 
