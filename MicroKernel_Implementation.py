@@ -175,13 +175,14 @@ class File_System(Service):
 #   User Application class
 #
 class User_Application(Service):
-    def system_call(self, operation, *args):
-        if (operation == "read"):
-            print(f'\nUser Application: Requesting File Read...')
-        elif (operation == "write"):
-            print(f'\nUser Application: Requesting File Write...')
+    pass
+    # def system_call(self, operation, *args):
+    #     if (operation == "read"):
+    #         print(f'\nUser Application: Requesting File Read...')
+    #     elif (operation == "write"):
+    #         print(f'\nUser Application: Requesting File Write...')
 
-        self.kernel.SysCall(self.service_name, operation, *args)
+    #     self.kernel.SysCall(self.service_name, operation, *args)
 
 #
 #   Message class (used for IPC)
