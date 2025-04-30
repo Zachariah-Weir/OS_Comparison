@@ -184,6 +184,8 @@ class User_Application(Service):
 
     #     self.kernel.SysCall(self.service_name, operation, *args)
 
+
+
 #
 #   Message class (used for IPC)
 #
