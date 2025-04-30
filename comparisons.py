@@ -174,17 +174,27 @@ def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Applicatio
     print(
     f'\n---------------------------------------------------------------------------\n\n\
     Microkernel Fault Isolation Comparison:\n\n\
-    - Scenario: User application attempts to read a file, but File Sytem crashes.\n\
-    - Measuring: Overhead due to IPC.\
+    - Scenario: User application attempts to read a file, but File System crashes.\n\
+    - Measuring: Time it takes to reboot the service(s).\
     \n\n---------------------------------------------------------------------------\n' )
-    User_Application.SysCall( User_Application.service_name, "Requesting to read file..." )
-    Microkernel.IPC(IPC_Message(  ))
+    User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
+    Microkernel.IPC(IPC_Message( "Kernel", _File_System.service_name, "Requesting to read file..." ))
+    # file system crash
+    print( f'ERROR: File System crashed.' )
+    del _File_System
+    print( f'   [System] Rebooting File System...' )
+    # reboot file system
+    _File_System = File_System( "File System" )
+    Microkernel.register_kernel_service( _File_System )
+    time.sleep( .1 )    # 100 ms delay for FS reboot
+    _File_System.kernel.IPC(IPC_Message( _File_System.service_name, "Kernel", "File System successfuly rebooted!" ))
+
 
 
 @Time_Efficiency_Decorator
 def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
     print( f'Microkernel Simulation:\n- For fault isolation comparison\n- User application requests to read file, but it fails.\n- Kernel reboot time is measured.\n' )
-    
+
     User_Application.system_call("read_fault", "text.txt")
 
 
