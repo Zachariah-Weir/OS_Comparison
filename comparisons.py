@@ -63,13 +63,15 @@ def Micro_Boot():
     \n\n---------------------------------------------------------------------------\n' )
     _Microkernel = Microkernel()                                # create Microkernel object
     _File_System = File_System( "File System" )                 # create service objects
-    _User_Application = User_Application( "User Application")  
-    _Microkernel.register_kernel_service( _File_System )        # register services to Microkernel
+    _User_Application = User_Application( "User Application")
+    _Disk = Disk( "Disk" )  
+    _Microkernel.register_core_service( _File_System )        # register services to Microkernel
+    _Microkernel.register_core_service( _Disk )
     _Microkernel.register_user_service( _User_Application )          
     _Microkernel.start_Micro()                                  # start the Microkernel
     print()
 
-    return _Microkernel, _File_System, _User_Application
+    return _Microkernel, _File_System, _User_Application, _Disk
 
 
 @Time_Efficiency_Result_Decorator
@@ -88,14 +90,13 @@ def Mono_Boot():
 #   IPC comparisons
 #
 @Time_Efficiency_Decorator
-def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
+def Micro_IPC_Comparison( Microkernel, File_System, User_Application, Disk ):
     print(
     f'\n---------------------------------------------------------------------------\n\n\
     Microkernel IPC Comparison:\n\n\
     - Scenario: User application requests to read a file.\n\
     - Measuring: Overhead due to IPC.\
     \n\n---------------------------------------------------------------------------\n' )
-    # print( f'\nMicrokernel Simulation:\n- User application requests to read file.\n- Only IPC time is measured.\n' )
     # User App SysCalls and IPCs to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
     # Kernel IPCs to file system
@@ -103,7 +104,8 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
     # File System IPCs to Disk
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
     # Disk reads
-    print( "\nDisk reading file into memory...\n" )
+    Disk.read_file()
+    # print( "\nDisk reading file into memory...\n" )
     # Disk IPCs to File System
     print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
     # File System IPCs to Kernel
@@ -117,7 +119,7 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application ):
 #   System Call comparisons
 #
 @Time_Efficiency_Decorator
-def Micro_SysCall_Comparison( Microkernel, File_System, User_Application) :
+def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk ) :
     print(
     f'\n---------------------------------------------------------------------------\n\n\
     Microkernel SysCall Comparison:\n\n\
@@ -132,9 +134,11 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application) :
     # File System IPCs to Disk
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
     # Disk reads
-    print( "\nDisk reading file into memory...\n" )
+    Disk.read_file()
+    # print( "\nDisk reading file into memory...\n" )
     # Disk IPCs to File System
-    print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
+    Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
+    # print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
     # Kernel IPCs to User App
@@ -148,9 +152,11 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application) :
     # File System IPCs to Disk
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
     # Disk writes
-    print( "\nDisk loading file into memory...\n" )
+    Disk.write_file()
+    # print( "\nDisk loading file into memory...\n" )
     # Disk IPCs to File System
-    print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
+    Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
+    # print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File read complete. Data is ready." ))
     # Kernel IPCs to User App
@@ -170,7 +176,7 @@ def Mono_SysCall_Comparison( Kernel, User_Application ):
 #   Fault Isolation comparisons
 #
 @Time_Efficiency_Decorator
-def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application ):
+def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application, Disk ):
     print(
     f'\n---------------------------------------------------------------------------\n\n\
     Microkernel Fault Isolation Comparison:\n\n\
@@ -185,7 +191,7 @@ def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Applicatio
     print( f'   [System] Rebooting File System...' )
     # reboot file system
     _File_System = File_System( "File System" )
-    Microkernel.register_kernel_service( _File_System )
+    Microkernel.register_core_service( _File_System )
     time.sleep( .1 )    # 100 ms delay for FS reboot
     _File_System.kernel.IPC(IPC_Message( _File_System.service_name, "Kernel", "File System successfuly rebooted!" ))
 
@@ -227,18 +233,18 @@ def Micro_Tests():
     result, micro_elapsed_time_Boot = Micro_Boot()
     print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_Boot:.6f}\n')
 
-    _Microkernel, _File_System, _User_Application_Micro = result[0], result[1], result[2]
+    _Microkernel, _File_System, _User_Application_Micro, _Disk = result
     
     # IPC
-    micro_elapsed_time_IPC = Micro_IPC_Comparison(_Microkernel, _File_System, _User_Application_Micro)
+    micro_elapsed_time_IPC = Micro_IPC_Comparison( _Microkernel, _File_System, _User_Application_Micro, _Disk )
     print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_IPC:.6f}\n')
 
     # System Call
-    micro_elapsed_time_SysCall = Micro_SysCall_Comparison(_Microkernel, _File_System, _User_Application_Micro)
+    micro_elapsed_time_SysCall = Micro_SysCall_Comparison( _Microkernel, _File_System, _User_Application_Micro, _Disk )
     print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_SysCall:.6f}\n')
 
     # Fault Isolation
-    micro_elapsed_time_fault = Micro_Fault_Isolation_Comparison(_Microkernel, _File_System, _User_Application_Micro)
+    micro_elapsed_time_fault = Micro_Fault_Isolation_Comparison( _Microkernel, _File_System, _User_Application_Micro, _Disk )
     print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_fault:.6f}\n')
 
     return micro_elapsed_time_IPC, micro_elapsed_time_SysCall, micro_elapsed_time_fault
