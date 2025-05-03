@@ -20,33 +20,33 @@ class Microkernel:
 
 
     # register kernel services to give access to kernel
-    def register_core_service(self, service):
-        self.core_services.append(service)
+    def register_core_service( self, service ):
+        self.core_services.append( service )
         service.kernel = self
 
 
     # register user services to give access to kernel
-    def register_user_service(self, service):
-        self.user_services.append(service)
+    def register_user_service( self, service ):
+        self.user_services.append( service )
         service.kernel = self
 
 
     # IPC service
-    def IPC(self, message):
-        time.sleep(.001)    # set IPC time to 1ms
-        print(f'IPC: {message.sender} -> {message.receiver}: \"{message.operation}\"')            
+    def IPC( self, message ):
+        time.sleep( .001 )    # set IPC time to 1ms
+        print( f'IPC: {message.sender} -> {message.receiver}: \"{message.operation}\"' )            
 
 
-    def SysCall(self, sender, operation, *args):
-        time.sleep(.0002) # set SysCall time to .2ms
-        print(f'SysCall: {sender} -> Kernel: \"{operation}\"')
+    def SysCall( self, sender, operation ):
+        time.sleep( .0002 ) # set SysCall time to .2ms
+        print( f'SysCall: {sender} -> Kernel: \"{operation}\"' )
 
 
     # Start OS
-    def start_Micro(self):
+    def start_Micro( self ):
         print( f'   Loading Microkernel...' )
 
-        time.sleep(0.005) # 5ms service manager startup
+        time.sleep( 0.005 ) # 5ms service manager startup
         print( f'   Starting System Service manager...' )
         print( f'       Loading Core Services...' )
         
