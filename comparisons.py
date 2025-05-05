@@ -76,7 +76,12 @@ def Micro_Boot():
 
 @Time_Efficiency_Result_Decorator
 def Mono_Boot():
-    print( f'Monolithic Simulation:\n- For boot speed comparison\n- Monolithic Kernel is booted including one user application\n')
+    print(
+    f'\n---------------------------------------------------------------------------\n\
+    Monolithic Boot Comparison:\n\n\
+    - Scenario: Booting up Monolithic Kernel.\n\
+    - Measuring: Boot speed (no necessity for IPC).\
+    \n---------------------------------------------------------------------------\n' )
 
     _Monolithic = Monolithic() # create Monolithic object
     # no necessity to load services individually
@@ -165,10 +170,16 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk )
 
 @Time_Efficiency_Decorator
 def Mono_SysCall_Comparison( Kernel, User_Application ):
-    print( f'Monolithic Simulation:\n- For system call comparison\n- User application requests to read and write file.\n- SysCall times being measured.\n' )
+    print(
+    f'\n---------------------------------------------------------------------------\n\
+    Monolithic System Call Comparison:\n\n\
+    - Scenario: User application requests to read and write to a file.\n\
+    - Measuring: Speed of system call (no IPC required).\
+    \n---------------------------------------------------------------------------\n' )
 
     User_Application.system_call("write", "text.txt", "sample text")
     User_Application.system_call("read", "text.txt")
+
 
 
 
@@ -199,8 +210,13 @@ def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Applicatio
 
 @Time_Efficiency_Decorator
 def Mono_Fault_Isolation_Comparison(Kernel, User_Application):
-    print( f'Microkernel Simulation:\n- For fault isolation comparison\n- User application requests to read file, but it fails.\n- Kernel reboot time is measured.\n' )
-
+    print(
+    f'\n---------------------------------------------------------------------------\n\
+    Monolithic Fault Isolation Comparison:\n\n\
+    - Scenario: User application attempts to read a file, but File System crashes.\n\
+    - Measuring: Speed of reboot (entire kernel requires reboot).\
+    \n---------------------------------------------------------------------------\n' )
+    
     User_Application.system_call("read_fault", "text.txt")
 
 
