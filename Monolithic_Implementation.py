@@ -38,6 +38,8 @@ class Monolithic:
                 return self.file_system.write_file(*args)
             elif operation == "create_application":
                 return self.application_manager.create_application(*args)
+            elif operation == "read_fault":
+                return self.file_system.read_fault_file(*args)
             else:
                 raise ValueError(f'Monolithic Kernel: Invalid system call \"{operation}\"') # throws error if invalid system call
         except ValueError as error:
@@ -83,6 +85,11 @@ class Mono_File_System(Kernel_Service):
         print(f'File_System: "{file_name}" written to successfully')
         return True
     
+    def read_fault_file(self, file_name):
+        print(f'File_System: Reading from "{file_name}"') # print file read message
+        print(f'   Disk loading file into memory...'); time.sleep( .002 ) # wait for disk loading 2ms
+        raise ValueError(f'File_System: Fault in loading file into memeory') # throws error if invalid system call
+    
 #
 #   Application Manager class
 #
@@ -117,6 +124,3 @@ class Monolithic_User_Application:
             print(f'\nUser Application: Requesting File Write...')
 
         self.kernel.system_call_handler(operation, *args)
-
-
-
