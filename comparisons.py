@@ -132,7 +132,8 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk )
     - Measuring: SysCall Overhead due to IPC.\
     \n\n---------------------------------------------------------------------------\n' )
 
-    # User App SysCalls and IPCs to Kernel
+    # { Read }
+    # User App SysCalls to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
     # Kernel IPCs to file system
     Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
@@ -140,16 +141,15 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk )
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
     # Disk reads
     Disk.read_file()
-    # print( "\nDisk reading file into memory...\n" )
     # Disk IPCs to File System
     Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
-    # print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
     # Kernel IPCs to User App
     Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File loaded into memory..." ))
 
-    # User App SysCalls and IPCs to Kernel
+    # { Write }
+    # User App SysCalls to Kernel
     print()
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to write file..." )
     # Kernel IPCs to file system
@@ -158,10 +158,8 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk )
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
     # Disk writes
     Disk.write_file()
-    # print( "\nDisk loading file into memory...\n" )
     # Disk IPCs to File System
     Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
-    # print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File read complete. Data is ready." ))
     # Kernel IPCs to User App
@@ -187,24 +185,28 @@ def Mono_SysCall_Comparison( Kernel, User_Application ):
 #   Fault Isolation comparisons
 #
 @Time_Efficiency_Decorator
-def Micro_Fault_Isolation_Comparison( Microkernel, _File_System, User_Application, Disk ):
+def Micro_Fault_Isolation_Comparison( _Microkernel, _File_System, _User_Application, _Disk ):
     print(
     f'\n---------------------------------------------------------------------------\n\n\
     Microkernel Fault Isolation Comparison:\n\n\
     - Scenario: User application attempts to read a file, but File System crashes.\n\
     - Measuring: Time it takes to reboot the service(s).\
     \n\n---------------------------------------------------------------------------\n' )
-    User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
-    Microkernel.IPC(IPC_Message( "Kernel", _File_System.service_name, "Requesting to read file..." ))
-    # file system crash
-    print( f'ERROR: File System crashed.' )
-    del _File_System
-    print( f'   [System] Rebooting File System...' )
+
+    # request file read
+    _User_Application.kernel.SysCall( _User_Application.service_name, "Requesting to read file..." )
+    _Microkernel.IPC(IPC_Message( "Kernel", _File_System.service_name, "Requesting to read file..." ))
+    _File_System.kernel.IPC(IPC_Message( _File_System.service_name, _Disk.service_name, "Requesting to read file..." ))
+    
+    # Disk crashes
+    print( f'ERROR: Disk crashed.' )
+    del _Disk
+    print( f'   [System] Rebooting Disk...' )
+    
     # reboot file system
-    _File_System = File_System( "File System" )
-    Microkernel.register_core_service( _File_System )
-    time.sleep( .1 )    # 100 ms delay for FS reboot
-    _File_System.kernel.IPC(IPC_Message( _File_System.service_name, "Kernel", "File System successfuly rebooted!" ))
+    _Disk = Disk( "Disk" )
+    _Microkernel.register_core_service( _Disk )
+    _Disk.kernel.IPC(IPC_Message( _Disk.service_name, "Kernel", "Disk successfuly rebooted!" ))
 
 
 

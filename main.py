@@ -31,10 +31,12 @@ def main():
 
         # Boot
         elif choice == 1:
+            # Mono
             result, monolithic_elapsed_time_Boot = Mono_Boot()
             print(f'\nMonolithic Elapsed Time: {monolithic_elapsed_time_Boot:.6f}\n')
             _Monolithic, _User_Application_Mono = result
             
+            # Micro
             result, micro_elapsed_time_Boot = Micro_Boot()
             print(f'\nMicrokernel Elapsed Time: {micro_elapsed_time_Boot:.6f}\n')
             _Microkernel, _File_System, _User_Application_Micro, _Disk = result

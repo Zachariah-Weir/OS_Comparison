@@ -19,7 +19,7 @@ class Microkernel:
         self.running = True
 
 
-    # register kernel services to give access to kernel
+    # register core services to give access to kernel
     def register_core_service( self, service ):
         self.core_services.append( service )
         service.kernel = self
@@ -75,7 +75,7 @@ class Service:
     def __init__( self, service_name ):
         self.service_name = service_name
         self.kernel = None
-        time.sleep( 0.004 ) # 4ms service boot
+        # time.sleep( .004 )
 
     def load_service( self ):
         print(f'                Loading {self.service_name}...')
