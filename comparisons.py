@@ -106,13 +106,16 @@ def Micro_IPC_Comparison( Microkernel, File_System, User_Application, Disk ):
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
     # Kernel IPCs to file system
     Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
-    # File System IPCs to Disk
-    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+    # File System IPCs to Kernel
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "Requesting to read file..." ))
+    # Kernel IPCs to Disk
+    Microkernel.IPC(IPC_Message( "Kernel", Disk.service_name, "Requesting to read file..." ))
     # Disk reads
     Disk.read_file()
-    # print( "\nDisk reading file into memory...\n" )
-    # Disk IPCs to File System
-    print( f'IPC: Disk -> File System: File loaded into memory...' ); time.sleep(.001)
+    # Disk IPCs to Kernel
+    Disk.kernel.IPC(IPC_Message( Disk.service_name, "Kernel", "File loaded into memory..." ))
+    # Kernel IPCs to File System
+    Microkernel.IPC( IPC_Message( "Kernel", File_System.service_name, "File loaded into memory..." ) )
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
     # Kernel IPCs to User App
@@ -133,37 +136,45 @@ def Micro_SysCall_Comparison( Microkernel, File_System, User_Application, Disk )
     \n\n---------------------------------------------------------------------------\n' )
 
     # { Read }
-    # User App SysCalls to Kernel
+    # User App SysCalls and IPCs to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to read file..." )
     # Kernel IPCs to file system
     Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
-    # File System IPCs to Disk
-    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+    # File System IPCs to Kernel
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "Requesting to read file..." ))
+    # Kernel IPCs to Disk
+    Microkernel.IPC(IPC_Message( "Kernel", Disk.service_name, "Requesting to read file..." ))
     # Disk reads
     Disk.read_file()
-    # Disk IPCs to File System
-    Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
+    # Disk IPCs to Kernel
+    Disk.kernel.IPC(IPC_Message( Disk.service_name, "Kernel", "File loaded into memory..." ))
+    # Kernel IPCs to File System
+    Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "File loaded into memory..." ))
     # File System IPCs to Kernel
     File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File loaded into memory..." ))
     # Kernel IPCs to User App
     Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File loaded into memory..." ))
+    print()
 
     # { Write }
-    # User App SysCalls to Kernel
-    print()
+    # User App SysCalls and IPCs to Kernel
     User_Application.kernel.SysCall( User_Application.service_name, "Requesting to write file..." )
     # Kernel IPCs to file system
-    Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to read file..." ))
-    # File System IPCs to Disk
-    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Disk", "Requesting to read file..." ))
+    Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "Requesting to write file..." ))
+    # File System IPCs to Kernel
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "Requesting to write file..." ))
+    # Kernel IPCs to Disk
+    Microkernel.IPC(IPC_Message( "Kernel", Disk.service_name, "Requesting to write file..." ))
     # Disk writes
     Disk.write_file()
-    # Disk IPCs to File System
-    Disk.kernel.IPC(IPC_Message( Disk.service_name, File_System.service_name, "File loaded into memory..." ))
+    # Disk IPCs to Kernel
+    Disk.kernel.IPC(IPC_Message( Disk.service_name, "Kernel", "File succesfully written..." ))
+    # Kernel IPCs to File System
+    Microkernel.IPC(IPC_Message( "Kernel", File_System.service_name, "File succesfully written..." ))
     # File System IPCs to Kernel
-    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File read complete. Data is ready." ))
+    File_System.kernel.IPC(IPC_Message( File_System.service_name, "Kernel", "File succesfully written..." ))
     # Kernel IPCs to User App
-    Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File read complete. Data is ready." ))
+    Microkernel.IPC(IPC_Message( "Kernel", User_Application.service_name, "File succesfully written..." ))
 
 
 @Time_Efficiency_Decorator
@@ -298,7 +309,9 @@ def plot_bar_graph( title, ylabel, xlabel, values, xlabels ):
         plt.text(
             bar.get_x() + bar.get_width() / 2,
             height,
-            f'{height:.2f}',
+            f'{height:.4f}',
             ha='center',
             va='bottom'
         )
+
+    plt.show()
